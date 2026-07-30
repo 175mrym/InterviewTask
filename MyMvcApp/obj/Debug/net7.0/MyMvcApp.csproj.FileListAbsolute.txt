@@ -1,0 +1,8 @@
+/Users/maryamwaleed/Desktop/InterviewTask/MyMvcApp/obj/Debug/net7.0/MyMvcApp.csproj.AssemblyReference.cache
+/Users/maryamwaleed/Desktop/InterviewTask/MyMvcApp/obj/Debug/net7.0/MyMvcApp.GeneratedMSBuildEditorConfig.editorconfig
+/Users/maryamwaleed/Desktop/InterviewTask/MyMvcApp/obj/Debug/net7.0/MyMvcApp.AssemblyInfoInputs.cache
+/Users/maryamwaleed/Desktop/InterviewTask/MyMvcApp/obj/Debug/net7.0/MyMvcApp.AssemblyInfo.cs
+/Users/maryamwaleed/Desktop/InterviewTask/MyMvcApp/obj/Debug/net7.0/MyMvcApp.csproj.CoreCompileInputs.cache
+/Users/maryamwaleed/Desktop/InterviewTask/MyMvcApp/obj/Debug/net7.0/MyMvcApp.MvcApplicationPartsAssemblyInfo.cache
+/Users/maryamwaleed/Desktop/InterviewTask/MyMvcApp/obj/Debug/net7.0/MyMvcApp.RazorAssemblyInfo.cache
+/Users/maryamwaleed/Desktop/InterviewTask/MyMvcApp/obj/Debug/net7.0/MyMvcApp.RazorAssemblyInfo.cs
