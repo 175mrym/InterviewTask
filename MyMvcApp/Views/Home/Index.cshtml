@@ -1,8 +1,170 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Employee Dashboard";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container py-4">
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="h4 mb-3">Add Employee</h2>
+                    <div id="alertBox"></div>
+                    <form id="employeeForm">
+                        <div class="mb-3">
+                            <label for="fullName" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="fullName" name="fullName" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="department" class="form-label">Department</label>
+                            <input type="text" class="form-control" id="department" name="department" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="salary" class="form-label">Salary</label>
+                            <input type="number" step="0.01" class="form-control" id="salary" name="salary" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="hireDate" class="form-label">Hire Date</label>
+                            <input type="date" class="form-control" id="hireDate" name="hireDate" />
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="isActive" name="isActive" checked />
+                            <label class="form-check-label" for="isActive">Active employee</label>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">Save Employee</button>
+                            <button type="reset" class="btn btn-outline-secondary">Clear</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2 class="h4 mb-0">Employees</h2>
+                        <button id="refreshBtn" class="btn btn-outline-secondary btn-sm">Refresh</button>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Department</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="employeeTableBody">
+                                <tr>
+                                    <td colspan="5" class="text-muted">Loading employees...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+<script>
+    const form = document.getElementById('employeeForm');
+    const tableBody = document.getElementById('employeeTableBody');
+    const alertBox = document.getElementById('alertBox');
+
+    function showAlert(message, type = 'danger') {
+        alertBox.innerHTML = `<div class="alert alert-${type} py-2">${message}</div>`;
+    }
+
+    async function loadEmployees() {
+        try {
+            const response = await fetch('/api/employee');
+            if (!response.ok) throw new Error('Unable to load employees.');
+
+            const employees = await response.json();
+
+            if (!employees.length) {
+                tableBody.innerHTML = '<tr><td colspan="5" class="text-muted">No employees found.</td></tr>';
+                return;
+            }
+
+            tableBody.innerHTML = employees.map(employee => `
+                <tr>
+                    <td>${employee.fullName ?? '-'}</td>
+                    <td>${employee.email ?? '-'}</td>
+                    <td>${employee.department ?? '-'}</td>
+                    <td>${employee.isActive ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-secondary">Inactive</span>'}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteEmployee(${employee.id})">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        } catch (error) {
+            showAlert(error.message);
+        }
+    }
+
+    async function deleteEmployee(id) {
+        if (!confirm('Delete this employee?')) return;
+
+        try {
+            const response = await fetch(`/api/employee/id/${id}`, { method: 'DELETE' });
+            if (!response.ok) throw new Error('Delete failed.');
+
+            showAlert('Employee deleted successfully.', 'success');
+            await loadEmployees();
+        } catch (error) {
+            showAlert(error.message);
+        }
+    }
+
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const payload = {
+            fullName: form.fullName.value,
+            email: form.email.value,
+            department: form.department.value,
+            salary: form.salary.value ? Number(form.salary.value) : null,
+            hireDate: form.hireDate.value || null,
+            isActive: form.isActive.checked
+        };
+
+        try {
+            const response = await fetch('/api/employee', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            const result = await response.text();
+            if (!response.ok) throw new Error(result || 'Could not save employee.');
+
+            showAlert('Employee saved successfully.', 'success');
+            form.reset();
+            form.isActive.checked = true;
+            await loadEmployees();
+        } catch (error) {
+            showAlert(error.message);
+        }
+    });
+
+    document.getElementById('refreshBtn').addEventListener('click', loadEmployees);
+    loadEmployees();
+</script>
+}
